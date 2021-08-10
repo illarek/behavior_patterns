@@ -1,0 +1,1 @@
+Datos de las transacciones de un Banco 'X', confidencial
