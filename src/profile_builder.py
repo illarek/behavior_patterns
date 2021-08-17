@@ -100,7 +100,7 @@ def footprint_bank_transfers(file_name=None):
     day_of_week = list(np.unique(global_session['weekday']))
 
     ## Creamos la cabecera dinámica donde se guardaran todos los footprints generados
-    cabecera = 'footprint_id,year,week,profile_id,category,turn,size'
+    cabecera = 'user_id,year,week,profile_id,category,turn,size'
     for i in categories:
         for j in turns:                # numero de turnos
             for k in day_of_week:      # numero de dias
@@ -120,7 +120,7 @@ def footprint_bank_transfers(file_name=None):
     lw = len(day_of_week)
     
     print('Guardando archivo:', file_name)
-    fw=open(outfile,'w')  
+    fw=open(file_name,'w')  
 
     fw.write(cabecera)                    # Escribimos la cabecera
     footprints_c=0 
@@ -159,8 +159,21 @@ def footprint_bank_transfers(file_name=None):
         fw.flush()
     fw.close()
     print ("Number of footprint: "+str(footprints_c))  
-    
+
     data = pd.read_csv(file_name, low_memory=False)
+    
+    print('Limpiando columna sin datos')
+    new_columns = []
+    for col in data.columns:
+        unicos = np.unique(data[col])
+        if(len(unicos)>1):
+            new_columns.append(col)
+    data = data[new_columns]
+    data['footprint_id'] = data['user_id'].map(str) +'-'+ data['year'].map(str) +'-'+ data['week'].map(str)
+    data.insert(0, 'footprint_id', data.pop('footprint_id'))
+    
+    data.to_csv(file_name, index = False, header=True)
+    #data.to_csv(file_name, header=True)
     
     return data
 
